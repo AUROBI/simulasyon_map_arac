@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="maviler">
+    <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <geometry><mesh><uri>model://maviler/meshes/mavi.dae</uri></mesh></geometry>
+        <material><ambient>0 0 1 1</ambient><diffuse>0 0 1 1</diffuse></material>
+      </visual>
+      <collision name="collision">
+        <geometry><mesh><uri>model://maviler/meshes/mavi.dae</uri></mesh></geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>
