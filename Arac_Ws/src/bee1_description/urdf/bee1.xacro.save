@@ -73,39 +73,13 @@
   <xacro:wheel prefix="rear_left"  x="0" y="${rear_track/2}"/>
   <xacro:wheel prefix="front_right" x="${wheelbase}" y="-${front_track/2}"/>
   <xacro:wheel prefix="front_left"  x="${wheelbase}" y="${front_track/2}"/>
-
-  <!-- SENSÖRLER[cite: 1] -->
-  <link name="lidar_link">
-    <visual><geometry><cylinder radius="0.05" length="0.07"/></geometry></visual>
-  </link>
-  <joint name="lidar_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="lidar_link"/>
-    <origin xyz="${wheelbase - 0.177} 0 0.620" rpy="0 0 0"/>
-  </joint>
-
-  <link name="camera_left_link">
-    <visual><geometry><box size="0.03 0.03 0.03"/></geometry></visual>
-  </link>
-  <joint name="camera_left_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="camera_left_link"/>
-    <origin xyz="${wheelbase + 0.205} 0.060 0.685" rpy="0 0 0"/>
-  </joint>
-
-  <link name="imu_gps_link">
-    <visual><geometry><box size="0.05 0.05 0.02"/></geometry></visual>
-  </link>
-  <joint name="imu_gps_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="imu_gps_link"/>
-    <origin xyz="${wheelbase + 1.440} 0 1.390" rpy="0 0 0"/>
-  </joint>
-
-  <!-- GAZEBO EKLENTİLERİ -->
+  
+  
   <gazebo>
     <plugin name='diff_drive' filename='libgazebo_ros_diff_drive.so'>
-      <ros><namespace>/</namespace></ros>
+      <ros>
+        <namespace>/</namespace>
+      </ros>
       <left_joint>rear_left_wheel_joint</left_joint>
       <right_joint>rear_right_wheel_joint</right_joint>
       <wheel_separation>${rear_track}</wheel_separation>
@@ -114,41 +88,4 @@
       <max_wheel_acceleration>10.0</max_wheel_acceleration>
       <odometry_frame>odom</odometry_frame>
       <robot_base_frame>base_footprint</robot_base_frame>
-      <publish_odom>true</publish_odom>
-      <publish_odom_tf>true</publish_odom_tf>
-      <publish_wheel_tf>true</publish_wheel_tf>
-    </plugin>
-  </gazebo>
-
-  <gazebo reference="lidar_link">
-    <sensor type="ray" name="velodyne_vlp16">
-      <pose>0 0 0 0 0 0</pose>
-      <visualize>true</visualize>
-      <update_rate>10</update_rate>
-      <ray>
-        <scan>
-          <horizontal><samples>440</samples><resolution>1</resolution><min_angle>-3.14</min_angle><max_angle>3.14</max_angle></horizontal>
-          <vertical><samples>16</samples><resolution>1</resolution><min_angle>-0.26</min_angle><max_angle>0.26</max_angle></vertical>
-        </scan>
-        <range><min>0.3</min><max>100.0</max><resolution>0.001</resolution></range>
-      </ray>
-      <!-- DOSYA ADI ÇOK ÖNEMLİ: libgazebo_ros_velodyne_laser.so -->
-      <plugin name="lidar_controller" filename="libgazebo_ros_velodyne_laser.so">
-        <ros>
-          <remapping>~/out:=/velodyne_points</remapping>
-        </ros>
-        <frame_name>lidar_link</frame_name>
-      </plugin>
-    </sensor>
-  </gazebo>
-
-  <gazebo reference="imu_gps_link">
-    <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
-      <ros>
-        <namespace>/</namespace>
-        <remapping>~/out:=imu/data</remapping>
-      </ros>
-    </plugin>
-  </gazebo>
-
-</robot>
+      <publish_odom>true</publish_
