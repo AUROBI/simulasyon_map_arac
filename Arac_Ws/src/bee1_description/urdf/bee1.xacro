@@ -75,33 +75,70 @@
   <xacro:wheel prefix="front_left"  x="${wheelbase}" y="${front_track/2}"/>
 
   <!-- SENSÖRLER[cite: 1] -->
-  <link name="lidar_link">
-    <visual><geometry><cylinder radius="0.05" length="0.07"/></geometry></visual>
-  </link>
-  <joint name="lidar_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="lidar_link"/>
-    <origin xyz="${wheelbase - 0.177} 0 0.620" rpy="0 0 0"/>
-  </joint>
+  <!-- 1. Velodyne VLP16 LIDAR -->
+<link name="lidar_link">
+  <visual>
+    <geometry>
+      <cylinder radius="0.05" length="0.07"/>
+    </geometry>
+    <material name="black"/>
+  </visual>
+</link>
 
-  <link name="camera_left_link">
-    <visual><geometry><box size="0.03 0.03 0.03"/></geometry></visual>
-  </link>
-  <joint name="camera_left_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="camera_left_link"/>
-    <origin xyz="${wheelbase + 0.205} 0.060 0.685" rpy="0 0 0"/>
-  </joint>
+<joint name="lidar_joint" type="fixed">
+  <parent link="base_link"/> <!-- Referans: Ön aks merkezi -->
+  <child link="lidar_link"/>
+  <origin xyz="0.177 0.0 0.620" rpy="0 0 0"/>
+</joint>
 
-  <link name="imu_gps_link">
-    <visual><geometry><box size="0.05 0.05 0.02"/></geometry></visual>
-  </link>
-  <joint name="imu_gps_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="imu_gps_link"/>
-    <origin xyz="${wheelbase + 1.440} 0 1.390" rpy="0 0 0"/>
-  </joint>
+<!-- 2. ZED2 Stereo Kameralar -->
+<!-- Sol Kamera[cite: 2] -->
+<link name="camera_left_link">
+  <visual>
+    <geometry>
+      <box size="0.03 0.17 0.03"/>
+    </geometry>
+    <material name="grey"/>
+  </visual>
+</link>
 
+<joint name="camera_left_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="camera_left_link"/>
+  <origin xyz="-0.205 0.060 0.685" rpy="0 0 0"/>
+</joint>
+
+<!-- Sağ Kamera[cite: 2] -->
+<link name="camera_right_link">
+  <visual>
+    <geometry>
+      <box size="0.03 0.17 0.03"/>
+    </geometry>
+    <material name="grey"/>
+  </visual>
+</link>
+
+<joint name="camera_right_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="camera_right_link"/>
+  <origin xyz="-0.205 -0.060 0.685" rpy="0 0 0"/>
+</joint>
+
+<!-- 3. XSENS GPS/IMU[cite: 2] -->
+<link name="gps_link">
+  <visual>
+    <geometry>
+      <box size="0.05 0.05 0.02"/>
+    </geometry>
+    <material name="red"/>
+  </visual>
+</link>
+
+<joint name="gps_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="gps_link"/>
+  <origin xyz="-1.440 0.0 1.390" rpy="0 0 0"/>
+</joint>
   <!-- GAZEBO EKLENTİLERİ -->
   <gazebo>
     <plugin name='diff_drive' filename='libgazebo_ros_diff_drive.so'>
@@ -120,35 +157,106 @@
     </plugin>
   </gazebo>
 
-  <gazebo reference="lidar_link">
-    <sensor type="ray" name="velodyne_vlp16">
-      <pose>0 0 0 0 0 0</pose>
-      <visualize>true</visualize>
-      <update_rate>10</update_rate>
-      <ray>
-        <scan>
-          <horizontal><samples>440</samples><resolution>1</resolution><min_angle>-3.14</min_angle><max_angle>3.14</max_angle></horizontal>
-          <vertical><samples>16</samples><resolution>1</resolution><min_angle>-0.26</min_angle><max_angle>0.26</max_angle></vertical>
-        </scan>
-        <range><min>0.3</min><max>100.0</max><resolution>0.001</resolution></range>
-      </ray>
-      <!-- DOSYA ADI ÇOK ÖNEMLİ: libgazebo_ros_velodyne_laser.so -->
-      <plugin name="lidar_controller" filename="libgazebo_ros_velodyne_laser.so">
-        <ros>
-          <remapping>~/out:=/velodyne_points</remapping>
-        </ros>
-        <frame_name>lidar_link</frame_name>
-      </plugin>
-    </sensor>
-  </gazebo>
+<!-- GAZEBO SENSÖR PLUGINLERI (Simülasyon Verisi İçin) -->
 
-  <gazebo reference="imu_gps_link">
-    <plugin name="imu_plugin" filename="libgazebo_ros_imu_sensor.so">
+<gazebo reference="lidar_link">
+  <sensor name="lidar" type="ray">
+    <always_on>true</always_on>
+    <visualize>true</visualize>
+    <update_rate>10</update_rate>
+    <ray>
+      <scan>
+        <horizontal>
+          <samples>360</samples>
+          <resolution>1.000000</resolution>
+          <min_angle>-3.14159</min_angle>
+          <max_angle>3.14159</max_angle>
+        </horizontal>
+      </scan>
+      <range>
+        <min>0.3</min>
+        <max>100.0</max>
+      </range>
+    </ray>
+    <plugin name="gazebo_ros_laser_controller" filename="libgazebo_ros_ray_sensor.so">
       <ros>
-        <namespace>/</namespace>
-        <remapping>~/out:=imu/data</remapping>
+        <remapping>~/out:=scan</remapping>
       </ros>
+      <output_type>sensor_msgs/LaserScan</output_type>
+      <frame_name>lidar_link</frame_name>
     </plugin>
-  </gazebo>
+  </sensor>
+</gazebo>
+
+<gazebo reference="gps_link">
+  <sensor name="gps_sensor" type="gps">
+    <always_on>true</always_on>
+    <update_rate>1.0</update_rate>
+    <plugin name="gps_controller" filename="libgazebo_ros_gps_sensor.so">
+      <ros>
+        <remapping>~/out:=gps/data</remapping>
+      </ros>
+      <frame_name>gps_link</frame_name>
+    </plugin>
+  </sensor>
+</gazebo>
+
+<!-- ZED2 Sol Kamera Gazebo Plugini -->
+<gazebo reference="camera_left_link">
+  <sensor name="camera_left" type="camera">
+    <camera>
+      <horizontal_fov>1.91986</horizontal_fov> <!-- 110 derece FOV -->
+      <image>
+        <width>1280</width>
+        <height>720</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>0.1</near>
+        <far>100</far>
+      </clip>
+    </camera>
+    <always_on>1</always_on>
+    <update_rate>30</update_rate>
+    <plugin name="camera_left_controller" filename="libgazebo_ros_camera.so">
+      <ros>
+        <remapping>~/image_raw:=camera/left/image_raw</remapping>
+        <remapping>~/camera_info:=camera/left/camera_info</remapping>
+      </ros>
+      <camera_name>camera_left</camera_name>
+      <frame_name>camera_left_link</frame_name>
+    </plugin>
+  </sensor>
+</gazebo>
+
+<!-- ZED2 Sağ Kamera Gazebo Plugini[cite: 2] -->
+<gazebo reference="camera_right_link">
+  <sensor name="camera_right" type="camera">
+    <camera>
+      <horizontal_fov>1.91986</horizontal_fov>
+      <image>
+        <width>1280</width>
+        <height>720</height>
+        <format>R8G8B8</format>
+      </image>
+      <clip>
+        <near>0.1</near>
+        <far>100</far>
+      </clip>
+    </camera>
+    <always_on>1</always_on>
+    <update_rate>30</update_rate>
+    <plugin name="camera_right_controller" filename="libgazebo_ros_camera.so">
+      <ros>
+        <remapping>~/image_raw:=camera/right/image_raw</remapping>
+        <remapping>~/camera_info:=camera/right/camera_info</remapping>
+      </ros>
+      <camera_name>camera_right</camera_name>
+      <frame_name>camera_right_link</frame_name>
+    </plugin>
+  </sensor>
+</gazebo>
+
+
 
 </robot>
