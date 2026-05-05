@@ -2,7 +2,7 @@
 
 # since this file is sourced use either the provided AMENT_CURRENT_PREFIX
 # or fall back to the destination set at configure time
-: ${AMENT_CURRENT_PREFIX:="/home/emirhan/Arac_Ws/src/simulasyon_arac/Arac_Ws/install/bee1_description"}
+: ${AMENT_CURRENT_PREFIX:="/home/zeynep/Desktop/simulasyon_map_arac/Arac_Ws/install/bee1_description"}
 if [ ! -d "$AMENT_CURRENT_PREFIX" ]; then
   if [ -z "$COLCON_CURRENT_PREFIX" ]; then
     echo "The compile time prefix path '$AMENT_CURRENT_PREFIX' doesn't " \

@@ -81,7 +81,7 @@
     <geometry>
       <cylinder radius="0.05" length="0.07"/>
     </geometry>
-    <material name="black"/>
+    <material name="black"><color rgba="0 0 0 1"/></material>
   </visual>
 </link>
 
@@ -98,7 +98,7 @@
     <geometry>
       <box size="0.03 0.17 0.03"/>
     </geometry>
-    <material name="grey"/>
+    <material name="grey"><color rgba="0.5 0.5 0.5 1"/></material>
   </visual>
 </link>
 
@@ -114,7 +114,7 @@
     <geometry>
       <box size="0.03 0.17 0.03"/>
     </geometry>
-    <material name="grey"/>
+    <material name="grey"><color rgba="0.5 0.5 0.5 1"/></material>
   </visual>
 </link>
 
@@ -130,7 +130,7 @@
     <geometry>
       <box size="0.05 0.05 0.02"/>
     </geometry>
-    <material name="red"/>
+    <material name="red"><color rgba="1 0 0 1"/></material>
   </visual>
 </link>
 
@@ -139,6 +139,21 @@
   <child link="gps_link"/>
   <origin xyz="-1.440 0.0 1.390" rpy="0 0 0"/>
 </joint>
+
+<!-- 4. IMU Link (Yeni Eklendi) -->
+  <link name="imu_link">
+    <visual>
+      <geometry><box size="0.05 0.05 0.02"/></geometry>
+      <material name="orange"><color rgba="1.0 0.5 0.0 1"/></material>
+    </visual>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/> <!-- Genelde merkeze yakın yerleştirilir -->
+  </joint>
+
   <!-- GAZEBO EKLENTİLERİ -->
   <gazebo>
     <plugin name='diff_drive' filename='libgazebo_ros_diff_drive.so'>
@@ -174,7 +189,7 @@
         </horizontal>
       </scan>
       <range>
-        <min>0.3</min>
+        <min>0.8</min>
         <max>100.0</max>
       </range>
     </ray>
@@ -186,6 +201,20 @@
       <frame_name>lidar_link</frame_name>
     </plugin>
   </sensor>
+</gazebo>
+
+<gazebo reference="imu_link">
+    <sensor name="imu_sensor" type="imu">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <visualize>true</visualize>
+      <plugin name="imu_controller" filename="libgazebo_ros_imu_sensor.so">
+        <ros>
+          <remapping>~/out:=imu</remapping>
+        </ros>
+        <initial_orientation_as_reference>false</initial_orientation_as_reference>
+      </plugin>
+    </sensor>
 </gazebo>
 
 <gazebo reference="gps_link">
