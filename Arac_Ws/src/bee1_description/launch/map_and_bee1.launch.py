@@ -29,7 +29,7 @@ def generate_launch_description():
 
     # Gazebo açılınca aracı spawn et (5 saniye bekle)
     spawn_entity = TimerAction(
-        period=5.0,
+        period=15.0,
         actions=[Node(
             package='gazebo_ros',
             executable='spawn_entity.py',
