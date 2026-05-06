@@ -1,3 +1,14 @@
+# ROS 2 Derleme Dosyaları
 Arac_Ws/build/
 Arac_Ws/install/
 Arac_Ws/log/
+
+# Python Geçici Dosyaları
+**/__pycache__/
+*.pyc
+
+# IDE ve Sistem Dosyaları
+.vscode/
+.idea/
+.DS_Store
+*.swp
